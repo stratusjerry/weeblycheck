@@ -17,6 +17,8 @@ $randTimer = $False
 $randRange = 10
 $user = $env:UserName
 $message = "Site Updated!"
+$useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"
+#$userAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
 
 # Don't change below
 $randMin = $timer - $randRange
@@ -34,7 +36,9 @@ function alert{
 }
 
 Write-Host "Starting Script..."
-$webCall = Invoke-WebRequest -Uri $url
+if ($userAgent){
+    $webCall = Invoke-WebRequest -Uri $url -UserAgent $userAgent
+} else { $webCall = Invoke-WebRequest -Uri $url }
 if ($webCall.StatusCode -ne 200){
     alert("First Call Failed!")
 }
@@ -52,6 +56,9 @@ DO
     }
     Start-Sleep -Seconds $timer
     $moreCalls = Invoke-WebRequest -Uri $url
+    if ($userAgent){
+        $moreCalls = Invoke-WebRequest -Uri $url -UserAgent $userAgent
+    } else { $moreCalls = Invoke-WebRequest -Uri $url }
     if ($moreCalls.StatusCode -eq 200){
         $moreJson = $moreCalls.Content | ConvertFrom-Json
         $moreTotal = $moreJson.data.count
